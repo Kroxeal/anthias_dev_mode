@@ -117,15 +117,14 @@ services:
       io.balena.features.supervisor-api: '1'
 
   redis:
-    image: screenly/anthias-redis:${DOCKER_TAG}-${DEVICE_TYPE}
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.redis
+    image: redis:alpine
+    platform: linux/arm64
     ports:
-      - 127.0.0.1:6379:6379
-    restart: always
+      - "6379:6379"
     volumes:
-      - redis-data:/var/lib/redis
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
 
   anthias-nginx:
     image: screenly/anthias-nginx:${DOCKER_TAG}-${DEVICE_TYPE}
