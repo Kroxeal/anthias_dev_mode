@@ -25,6 +25,10 @@ else
         ./manage.py dbbackup --noinput --clean
 fi
 
+# Сбор статических файлов
+echo "Generating Django static files..."
+./manage.py collectstatic --clear --noinput
+
 if [[ "$ENVIRONMENT" == "development" ]]; then
     echo "Starting Django development server..."
     npm install && npm run build

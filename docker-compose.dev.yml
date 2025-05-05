@@ -45,8 +45,13 @@ services:
       - anthias-data:/data
 
   redis:
-    platform: "linux/amd64"
     image: redis:alpine
+    platform: linux/arm64
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
 
   anthias-nginx:
     build:
@@ -62,7 +67,33 @@ services:
     restart: always
     volumes:
       - anthias-data:/data:ro
+      - ./static:/data/screenly/staticfiles:ro
+
+  anthias-viewer:
+    image: screenly/anthias-viewer:16ca60e-pi4-64
+    mem_limit: 2048000k 
+    depends_on: 
+      - anthias-server
+    environment:
+      - HOME=/data
+      - PORT=80
+      - NOREFRESH=1
+      - LISTEN=anthias-nginx
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    privileged: true
+    restart: always
+    shm_size: 512000kb 
+    volumes:
+      - resin-data:/data
+      - /home/pios/.asoundrc:/data/.asoundrc
+      - /home/pios/.screenly:/data/.screenly
+      - /home/pios/screenly_assets:/data/screenly_assets
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./:/usr/src/app/
 
 volumes:
     anthias-data:
     redis-data:
+    resin-data:
